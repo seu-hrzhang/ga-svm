@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+import smo
 from smo import *
 
 
@@ -20,7 +21,14 @@ def load_data(filename):
     return data, labels
 
 
-def get_visial(data, labels):
+def get_visial(data, labels, title='Figure'):
+    """
+    visualize input data and labels using matplotlib
+    :param data: input data
+    :param labels: input labels
+    :param title: figure title
+    :return: none
+    """
     data = np.array(data)
     labels = np.array(labels)
     [rows, cols] = data.shape
@@ -34,28 +42,21 @@ def get_visial(data, labels):
         else:
             plt.scatter(x[i], y[i], color='red')
     plt.axis([-1, 10, -6, 5])
+    plt.title(title)
     plt.show()
 
 
 def run():
     data, labels = load_data('data.txt')
-    # get_visial(data, labels)
+    get_visial(data, labels, 'Input Data')
 
     alpha, b = smo_naive(data, labels, 0.6, 0.001, 40)
 
-    # print(b)
-    # print(alpha)
-
-    # for i in range(100):
-    #     if alpha[i] > 0:
-    #         if labels[i] == 1:
-    #             plt.scatter(data[i][0], data[i][1], color='green')
-    #         else:
-    #             plt.scatter(data[i][0], data[i][1], color='red')
-    # plt.axis([-1, 10, -6, 5])
-    # plt.show()
-
-    # TODO: get classification surface
+    smo_solver = SMO(data, labels, 0.6, 0.01, max_it=1000)
+    if smo_solver.run():
+        smo_solver.plot()
+    else:
+        print('SMO process failed')
 
 
 if __name__ == '__main__':
