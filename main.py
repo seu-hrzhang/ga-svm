@@ -1,7 +1,3 @@
-import numpy as np
-import matplotlib.pyplot as plt
-
-import smo
 from smo import *
 
 
@@ -31,7 +27,7 @@ def get_visual(data, labels, title='Figure'):
     """
     data = np.array(data)
     labels = np.array(labels)
-    [rows, cols] = data.shape
+    rows = data.shape[0]
 
     x = data[:, 0]
     y = data[:, 1]
@@ -50,11 +46,11 @@ def run():
     data, labels = load_data('data.txt')
     get_visual(data, labels, 'Input Data')
 
-    # alpha, b = smo_naive(data, labels, 0.6, 0.001, 40)
-
-    smo_solver = SMO(data, labels, 0.6, 0.001, max_it=100)
-    if smo_solver.run_naive():
+    smo_solver = SMO(data, labels, 0.6, 0.001, max_it=40)
+    if smo_solver.train_naive():
         smo_solver.plot()
+        print(smo_solver.w)
+        print(smo_solver.b)
     else:
         print('SMO process failed')
 
