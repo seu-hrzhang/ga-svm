@@ -181,7 +181,6 @@ class SMO:
 
     def train_naive(self):
         while self.it <= self.max_it:
-            print('iter: ', self.it)
             changes = 0
             for i in range(self.m):
                 self.e[i] = self.g(i) - float(self.y[i])
@@ -201,8 +200,6 @@ class SMO:
 
     def train(self):
         while self.loop():
-            print('iter: %d' % self.it)
-
             # check of iterations
             self.it += 1
             if self.it >= self.max_it:
