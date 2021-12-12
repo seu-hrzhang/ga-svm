@@ -66,7 +66,6 @@ def smo_naive(data, labels, const, toler, max_iter):
                 k_11 = x[i, :] * x[i, :].T
                 k_12 = x[i, :] * x[j, :].T
                 k_22 = x[j, :] * x[j, :].T
-
                 eta = k_11 + k_22 - 2.0 * k_12
 
                 # alpha[j] > l_lim, alpha[j] < h_lim
@@ -97,7 +96,6 @@ def smo_naive(data, labels, const, toler, max_iter):
             it += 1
         else:
             it = 0
-        # print('%d iterations' % it)
 
     return alpha, b
 
@@ -133,12 +131,11 @@ class SMO:
         self.inner_var = -1
         self.mark = -1
 
-    def get_k(self):
+        # initialize 'k' and 'e'
         for i in range(self.m):
             for j in range(self.m):
                 self.k[i, j] = self.x[i, :] * self.x[j, :].T
 
-    def init_e(self):
         for i in range(self.m):
             self.e[i] = self.g(i) - float(self.y[i])
 
@@ -186,8 +183,8 @@ class SMO:
         self.b = (b_i + b_j) / 2.0
 
         # update param 'e'
-        for i in range(self.m):
-            self.e[i] = self.g(i) - float(self.y[i])
+        # self.e[i] = self.g(i) - float(self.y[i])
+        # self.e[j] = self.g(j) - float(self.y[j])
 
         return 0
 
@@ -225,7 +222,7 @@ class SMO:
         self.inner_var = inner_idx[0][int(random.uniform(0, len(inner_idx)))]
         return self.inner_var
 
-    def get_line(self):
+    def get_surface(self):
         for i in range(self.m):
             self.w += self.x[i, :] * float(self.alpha[i] * self.y[i])
         self.w = self.w[0]
@@ -240,7 +237,7 @@ class SMO:
                 else:
                     plt.scatter(self.data[i][0], self.data[i][1], color='red')
         # plot classification surface
-        self.get_line()
+        self.get_surface()
         x = np.linspace(-2, 10, 100)
         y = (self.b - self.w[1] * x) / self.w[0]
         plt.plot(x, y)
@@ -265,9 +262,27 @@ class SMO:
                 return True
         return False
 
+    def run_naive(self):
+        while self.it <= self.max_it:
+            print('iter: ', self.it)
+            changes = 0
+            for i in range(self.m):
+                self.e[i] = self.g(i) - float(self.y[i])
+                if self.y[i] * self.e[i] < -self.err and self.alpha[i] < self.const \
+                        or self.y[i] * self.e[i] > self.err and self.alpha[i] > 0:
+                    j = get_random_id(i, self.m)
+                    self.e[j] = self.g(j) - float(self.y[j])
+                    if self.update(i, j) == 0:
+                        changes += 1
+                    else:
+                        continue
+            if changes == 0:
+                self.it += 1
+            else:
+                self.it = 0
+        return True
+
     def run(self):
-        self.get_k()
-        self.init_e()
         while self.loop():
             print('iter: %d' % self.it)
 

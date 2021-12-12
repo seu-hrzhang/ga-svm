@@ -21,7 +21,7 @@ def load_data(filename):
     return data, labels
 
 
-def get_visial(data, labels, title='Figure'):
+def get_visual(data, labels, title='Figure'):
     """
     visualize input data and labels using matplotlib
     :param data: input data
@@ -48,12 +48,12 @@ def get_visial(data, labels, title='Figure'):
 
 def run():
     data, labels = load_data('data.txt')
-    get_visial(data, labels, 'Input Data')
+    get_visual(data, labels, 'Input Data')
 
-    alpha, b = smo_naive(data, labels, 0.6, 0.001, 40)
+    # alpha, b = smo_naive(data, labels, 0.6, 0.001, 40)
 
-    smo_solver = SMO(data, labels, 0.6, 0.01, max_it=1000)
-    if smo_solver.run():
+    smo_solver = SMO(data, labels, 0.6, 0.001, max_it=100)
+    if smo_solver.run_naive():
         smo_solver.plot()
     else:
         print('SMO process failed')
