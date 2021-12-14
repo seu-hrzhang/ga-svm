@@ -40,27 +40,40 @@ class SMO:
         # pre-calculated 'k' matrix
         self.k = zeros((self.m, self.m), dtype='float64')
 
-        # record of 'e' vector
+        # record of error vector
         self.e = np.zeros(self.m, dtype=float)
+        self.get_error()
 
         # outer and inner variables to optimize
         self.outer_var = -1
         self.inner_var = -1
         self.mark = -1
 
-        # initialize 'k' and 'e'
+        # initialize 'k'
         for i in range(self.m):
             for j in range(self.m):
                 self.k[i, j] = self.x[i, :] * self.x[j, :].T
-
-        for i in range(self.m):
-            self.e[i] = self.g(i) - float(self.y[i])
 
     def g(self, i):
         return dot(self.alpha * self.y, self.k[:, i]) + self.b
         # return float(multiply(self.alpha, self.y).T * (self.x * self.x[i, :].T)) + self.b
 
+    def get_error(self):
+        self.e = [self.g(i) - float(self.y[i]) for i in range(self.m)]
+
     def update(self, i, j):
+        self.get_error()
+
+        # k_12 = k_21
+        k_ii = self.k[i, i]
+        k_ij = self.k[i, j]
+        k_jj = self.k[j, j]
+        eta = k_ii + k_jj - 2.0 * k_ij
+
+        if eta <= 0:
+            print('eta <= 0')
+            return 0
+
         # record old values of 'alpha_i' and 'alpha_j'
         alpha_io = self.alpha[i].copy()
         alpha_jo = self.alpha[j].copy()
@@ -73,14 +86,8 @@ class SMO:
             l_lim = max(0, alpha_io + alpha_jo - self.const)
             h_lim = min(self.const, alpha_io + alpha_jo)
 
-        if l_lim == h_lim:
-            return -1
-
-        # k_12 = k_21
-        k_11 = self.k[i, i]
-        k_12 = self.k[i, j]
-        k_22 = self.k[j, j]
-        eta = k_11 + k_22 - 2.0 * k_12
+        # if l_lim == h_lim:
+        #     return 0
 
         # alpha[j] > l_lim, alpha[j] < h_lim
         alpha_jn = max(min((alpha_jo + self.y[j] * (self.e[i] - self.e[j]) / eta), h_lim), l_lim)
@@ -88,22 +95,25 @@ class SMO:
 
         # ensure enough change in 'alpha[j]'
         if abs(alpha_jn - alpha_jo) < 0.00001:
-            return -2
+            return 0
 
         # calc 'alpha[i]' using 'alpha[j]'
-        alpha_in = alpha_io + self.y[j] * self.y[i] * (alpha_jo - alpha_jn)
+        alpha_in = alpha_io + self.y[i] * self.y[j] * (alpha_jo - alpha_jn)
         self.alpha[i] = alpha_in
 
-        # update param 'b'
-        b_i = self.b - self.e[i] - self.y[i] * k_11 * (alpha_in - alpha_io) - self.y[j] * k_12 * (alpha_jn - alpha_jo)
-        b_j = self.b - self.e[j] - self.y[i] * k_12 * (alpha_in - alpha_io) - self.y[j] * k_22 * (alpha_jn - alpha_jo)
-        self.b = (b_i + b_j) / 2.0
+        self.get_error()
 
-        # update param 'e'
-        # self.e[i] = self.g(i) - float(self.y[i])
-        # self.e[j] = self.g(j) - float(self.y[j])
+        # update thresholds 'b'
+        b_i = self.b - self.e[i] - self.y[i] * k_ii * (alpha_in - alpha_io) - self.y[j] * k_ij * (alpha_jn - alpha_jo)
+        b_j = self.b - self.e[j] - self.y[i] * k_ij * (alpha_in - alpha_io) - self.y[j] * k_jj * (alpha_jn - alpha_jo)
 
-        return 0
+        if 0 < alpha_in < self.const:
+            self.b = b_i
+        elif 0 < alpha_jn < self.const:
+            self.b = b_j
+        else:
+            self.b = (b_i + b_j) / 2.0
+        return 1
 
     def get_outer_var(self):
         # condition 1: 0 < alpha[i] < C and y[i] * g_xi == 1
@@ -126,24 +136,77 @@ class SMO:
         return -1
 
     def get_inner_var(self):
-        if self.outer_var == -1:
-            return -1
+        valid_indices = [i for i, alpha in enumerate(self.alpha) if 0 < alpha < self.const]
 
-        m, n = shape(self.x)
-
-        if self.e[self.outer_var] > 0:
-            inner_idx = where(self.e == np.min(self.e))
+        if len(valid_indices) > 1:
+            inner_var = -1
+            max_delta = 0
+            for i in valid_indices:
+                if i == self.outer_var:
+                    continue
+                delta = abs(self.e[self.outer_var] - self.e[inner_var])
+                if delta > max_delta:
+                    inner_var = i
+                    max_delta = delta
         else:
-            inner_idx = where(self.e == np.max(self.e))
+            inner_var = random_var(self.outer_var, self.m)
 
-        self.inner_var = inner_idx[0][int(random.uniform(0, len(inner_idx)))]
+        self.inner_var = inner_var
         return self.inner_var
 
-    def get_surface(self):
+    def verify_outer_var(self):
+        i = self.outer_var
+        r = self.y[i] * self.e[i]
+        if r < -self.err and self.alpha[i] < self.const or r > self.err and self.alpha[i] > 0:
+            self.get_inner_var()
+            return self.update(self.outer_var, self.inner_var)
+        else:
+            return 0
+
+    def get_w(self):
         for i in range(self.m):
             self.w += self.x[i, :] * float(self.alpha[i] * self.y[i])
         self.w = self.w[0]
-        return self.w, self.b
+        return self.w
+
+    def naive_smo(self):
+        while self.it <= self.max_it:
+            changes = 0
+            for i in range(self.m):
+                self.e[i] = self.g(i) - float(self.y[i])
+                if self.y[i] * self.e[i] < -self.err and self.alpha[i] < self.const \
+                        or self.y[i] * self.e[i] > self.err and self.alpha[i] > 0:
+                    j = random_var(i, self.m)
+                    self.e[j] = self.g(j) - float(self.y[j])
+                    if self.update(i, j) == 1:
+                        changes += 1
+                    else:
+                        continue
+            if changes == 0:
+                self.it += 1
+            else:
+                self.it = 0
+        return True
+
+    def platt_smo(self):
+        entire = True
+        while self.it <= self.max_it:
+            changes = 0
+            if entire:
+                for i in range(self.m):
+                    self.outer_var = i
+                    changes += self.verify_outer_var()
+            else:
+                non_bound_indices = [i for i, alpha in enumerate(self.alpha) if 0 < alpha < self.const]
+                for i in non_bound_indices:
+                    self.outer_var = i
+                    changes += self.verify_outer_var()
+            self.it += 1
+
+            if entire:
+                entire = False
+            elif changes == 0:
+                entire = True
 
     def plot(self):
         # scatter source data
@@ -154,7 +217,7 @@ class SMO:
                 else:
                     plt.scatter(self.data[i][0], self.data[i][1], color='red')
         # plot classification surface
-        self.get_surface()
+        self.get_w()
         x = np.linspace(-2, 10, 100)
         y = (-self.b - self.w[0] * x) / self.w[1]
         plt.plot(x, y)
@@ -162,69 +225,3 @@ class SMO:
         plt.axis([-1, 10, -6, 5])
         plt.title('Support Vectors')
         plt.show()
-
-    # check loop conditions
-    def loop(self):
-        # condition 1: sum of alpha[i] * y[i] == 0
-        # sum = 0.0
-        # for i in range(self.m):
-        #     sum += self.alpha[i] * self.y[i]
-        # if abs(sum) > self.err:
-        #     return True
-
-        # condition 2: y[i] * g[i] == 1 and 0 < alpha[i] < C
-        for i in range(self.m):
-            if abs(self.y[i] * self.e[i]) > self.err or self.alpha[i] < 0 or self.alpha[i] > self.const:
-                print('elem ' + str(i) + ' breaks restraint')
-                return True
-        return False
-
-    def train_naive(self):
-        while self.it <= self.max_it:
-            changes = 0
-            for i in range(self.m):
-                self.e[i] = self.g(i) - float(self.y[i])
-                if self.y[i] * self.e[i] < -self.err and self.alpha[i] < self.const \
-                        or self.y[i] * self.e[i] > self.err and self.alpha[i] > 0:
-                    j = random_var(i, self.m)
-                    self.e[j] = self.g(j) - float(self.y[j])
-                    if self.update(i, j) == 0:
-                        changes += 1
-                    else:
-                        continue
-            if changes == 0:
-                self.it += 1
-            else:
-                self.it = 0
-        return True
-
-    def train(self):
-        while self.loop():
-            # check of iterations
-            self.it += 1
-            if self.it >= self.max_it:
-                print('reaching maximum iterations')
-                return True
-
-            if self.get_outer_var() == -1:
-                print('error getting outer variable')
-                self.mark = -1
-                continue
-            else:
-                print('outer variable: ', self.outer_var)
-
-            if self.get_inner_var() == -1:
-                print('error getting inner variable')
-                return False
-            else:
-                print('inner variable: ', self.inner_var)
-
-            rt_val = self.update(self.outer_var, self.inner_var)
-            print('returning ', rt_val)
-            if rt_val != 0:
-                self.mark = self.outer_var
-                continue
-            else:
-                self.mark = -1
-
-        return True

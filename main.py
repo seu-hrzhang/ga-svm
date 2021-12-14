@@ -46,13 +46,9 @@ def run():
     data, labels = load_data('data.txt')
     get_visual(data, labels, 'Input Data')
 
-    smo_solver = SMO(data, labels, 0.6, 0.001, max_it=40)
-    if smo_solver.train_naive():
-        smo_solver.plot()
-        print(smo_solver.w)
-        print(smo_solver.b)
-    else:
-        print('SMO process failed')
+    smo_solver = SMO(data, labels, 0.8, 0.001, max_it=40)
+    smo_solver.platt_smo()
+    smo_solver.plot()
 
 
 if __name__ == '__main__':
