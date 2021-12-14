@@ -1,3 +1,4 @@
+from ga import *
 from smo import *
 
 
@@ -46,9 +47,13 @@ def run():
     data, labels = load_data('data.txt')
     get_visual(data, labels, 'Input Data')
 
-    smo_solver = SMO(data, labels, 0.8, 0.001, max_it=40)
-    smo_solver.platt_smo()
-    smo_solver.plot()
+    # smo_solver = SMO(data, labels, 0.8, 0.001, max_it=40)
+    # smo_solver.platt_smo()
+    # smo_solver.plot('Support Vectors & Hyperplane')
+
+    ga_solver = GA(data, labels, 50, 3, 1000)
+    ga_solver.evolve()
+    ga_solver.plot('Hyperplane')
 
 
 if __name__ == '__main__':

@@ -208,7 +208,7 @@ class SMO:
             elif changes == 0:
                 entire = True
 
-    def plot(self):
+    def plot(self, title):
         # scatter source data
         for i in range(100):
             if self.alpha[i] > 0:
@@ -218,10 +218,10 @@ class SMO:
                     plt.scatter(self.data[i][0], self.data[i][1], color='red')
         # plot classification surface
         self.get_w()
-        x = np.linspace(-2, 10, 100)
+        x = np.linspace(-1, 10, 100)
         y = (-self.b - self.w[0] * x) / self.w[1]
         plt.plot(x, y)
 
         plt.axis([-1, 10, -6, 5])
-        plt.title('Support Vectors')
+        plt.title(title)
         plt.show()
