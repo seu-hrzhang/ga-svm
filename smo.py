@@ -216,7 +216,8 @@ class SMO:
                     plt.scatter(self.data[i][0], self.data[i][1], color='green')
                 else:
                     plt.scatter(self.data[i][0], self.data[i][1], color='red')
-        # plot classification surface
+
+        # plot hyperplane
         self.get_w()
         x = np.linspace(-1, 10, 100)
         y = (-self.b - self.w[0] * x) / self.w[1]
