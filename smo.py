@@ -16,7 +16,6 @@ def random_var(i, m):
         j = int(random.uniform(0, m))
     return j
 
-
 class SMO:
     def __init__(self, data, labels, const, err, max_it):
         # input data
