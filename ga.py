@@ -99,7 +99,6 @@ class GA:
         x = np.linspace(-1, 10, 100)
         y = (-b - w[0] * x) / w[1]
         plt.plot(x, y)
-
         plt.axis([-1, 10, -6, 5])
         plt.title(title)
         plt.show()
