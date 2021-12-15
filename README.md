@@ -35,16 +35,16 @@ $$
 where $C$ is a punishing constant. Therefore the dual complementarity [KKT conditions](https://en.wikipedia.org/wiki/Karush–Kuhn–Tucker_conditions) of the problem can be expressed as
 
 $$
-\alpha_i^*\big[y_i(w^\mathrm{T}x_i+b)-1+\xi_i^*\big]=0
+\alpha_i^\star\big[y_i(w^\mathrm{T}x_i+b)-1+\xi_i^\star\big]=0
 $$
 
 which can be derivied into
 
 $$
 \begin{aligned}
-\alpha_i^*=0 & \Rightarrow y_ig(x_i) \ge 1 \\
-0<\alpha_i^*<C & \Rightarrow y_ig(x_i)=1 \\
-\alpha_i^*=C & \Rightarrow y_ig(x_i) \le 1
+\alpha_i^\star=0 & \Rightarrow y_ig(x_i) \ge 1 \\
+0<\alpha_i^\star<C & \Rightarrow y_ig(x_i)=1 \\
+\alpha_i^\star=C & \Rightarrow y_ig(x_i) \le 1
 \end{aligned}
 $$
 
