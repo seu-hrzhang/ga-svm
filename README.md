@@ -19,11 +19,9 @@ Let the input data be $m$ samples $(x_1,y_1),\dots,(x_m,y_m)$, where $x\in\mathb
 The standard form of SVM is expressed as
 
 $$
-\begin{aligned}
-& \substack{\max\\\alpha} && \frac{1}{2}\sum_{i=1}^{m}\sum_{j=1}^{m}\alpha_i\alpha_jy_iy_j(x_i \cdot x_j)-\sum_{i=1}^m\alpha_i \\
-& \text{s.t.} && \sum_{i=1}^{m}\alpha_iy_i=0 \\
-& && \alpha_i \ge 0,\ i=1,\dots,m
-\end{aligned}
+\substack{\max\\\alpha}\frac{1}{2}\sum_{i=1}^{m}\sum_{j=1}^{m}\alpha_i\alpha_jy_iy_j(x_i \cdot x_j)-\sum_{i=1}^m\alpha_i \\
+\text{s.t.}\sum_{i=1}^{m}\alpha_iy_i=0 \\
+\alpha_i \ge 0,\ i=1,\dots,m
 $$
 
 where $\alpha$ is the equivalent optimization vector brought by Lagrange Function. The equation obove uses a so-called hard margin to separate two hyperplanes. To address avoidance of outliers influences, soft margin is introduced, and the second constraint becomes
@@ -41,11 +39,9 @@ $$
 which can be derivied into
 
 $$
-\begin{aligned}
-\alpha_i^\star=0 & \Rightarrow y_ig(x_i) \ge 1 \\
-0<\alpha_i^\star<C & \Rightarrow y_ig(x_i)=1 \\
-\alpha_i^\star=C & \Rightarrow y_ig(x_i) \le 1
-\end{aligned}
+\alpha_i^\star=0 \Rightarrow y_ig(x_i) \ge 1 \\
+0<\alpha_i^\star<C \Rightarrow y_ig(x_i)=1 \\
+\alpha_i^\star=C \Rightarrow y_ig(x_i) \le 1
 $$
 
 The aforementioned constraints should be followed during optimization. Further introduction of SVM can be found on [Wikipedia](https://en.wikipedia.org/wiki/Support-vector_machine).
@@ -64,7 +60,17 @@ $$
 \alpha_2^{new}=\alpha_2^{old}+\frac{y_2(E_1-E_2)}{K}
 $$
 
-where $E_i=f(x_i)-y_i$, $f(x_i)=\sum_{j=1}^{n}y_j\alpha_jK_ij+b$ and $K_{ij}$ refers to the kernel operation of $x_i$ and $x_j$. Then considering the constraints $0 \le \alpha_i \le C$, $(\alpha_i,\alpha_j)$ only possibly falls in the rectangle $[0,C]\times[0,C]$, which should be checked during optimization.
+where
+
+$$
+E_i=f(x_i)-y_i
+$$
+
+$$
+f(x_i)=\sum_{j=1}^{n}y_j\alpha_jK_ij+b
+$$
+
+and $K_{ij}$ refers to the kernel operation of $x_i$ and $x_j$. Then considering the constraints $0 \le \alpha_i \le C$, $(\alpha_i,\alpha_j)$ only possibly falls in the rectangle $[0,C]\times[0,C]$, which should be checked during optimization.
 
 In general, the algorithm proceeds as follows:
 
