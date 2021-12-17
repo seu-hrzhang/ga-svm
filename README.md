@@ -112,4 +112,18 @@ Using GA to solve SVM is easy as toe. By applying the optimization target as the
    ga_solver.plot('Hyperplane')
    ```
 
-*TODO:* Tesing Section
+# Testing
+
+Following is the tesing result acquired using naive SMO, Platt SMO and GA.
+
+1. Support Vectors and Hyperplane - Naive SMO
+
+<img title="" src="https://gitee.com/seu-hrzhang/ga-svm/raw/master/figure/naive-smo.png" alt="" data-align="center" width='400'>
+
+2. Support Vectors and Hyperplane - Platt SMO
+
+<img title="" src="https://gitee.com/seu-hrzhang/ga-svm/raw/master/figure/platt-smo.png" alt="" data-align="center" width='400'>
+
+3. Hyperplane - GA
+
+<img title="" src="https://gitee.com/seu-hrzhang/ga-svm/raw/master/figure/ga.png" alt="" data-align="center" width='400'>
