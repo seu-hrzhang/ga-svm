@@ -212,10 +212,10 @@ class SMO:
         # scatter source data
         for i in range(100):
             if self.alpha[i] > 0:
-                if self.labels[i] == 1:
-                    plt.scatter(self.data[i][0], self.data[i][1], color='green')
-                else:
+                if self.labels[i] != 1:
                     plt.scatter(self.data[i][0], self.data[i][1], color='red')
+                else:
+                    plt.scatter(self.data[i][0], self.data[i][1], color='green')
 
         # plot hyperplane
         self.get_w()
