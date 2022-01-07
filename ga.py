@@ -24,18 +24,14 @@ class GA:
         self.labels = labels
 
         # GA params
-        self.pop_size = pop_size  # size of population
-        self.n_params = n_params  # param number
-        self.max_it = max_it  # maximum iterations
-        self.cross_rate = cross_rate  # crossover rate
-        self.mutation = mutation  # mutation rate
+        self.pop_size = pop_size
+        self.n_params = n_params
+        self.max_it = max_it
+        self.cross_rate = cross_rate
+        self.mutation = mutation
 
         self.cross_point = 0
         self.mutate_point = 0
-
-        # record of params
-        self.w = []
-        self.b = []
 
         self.pop = [[random.random() * 4 - 2 for i in range(n_params)] for j in range(pop_size)]
 
@@ -60,10 +56,6 @@ class GA:
 
         next_gen = sorted(range(len(self.pop)), key=lambda k: fit[k], reverse=True)
         self.pop = [self.pop[next_gen[i]] for i in range(self.pop_size)]
-
-    def record_params(self):
-        self.w.append(self.pop[0][0:2])
-        self.b.append(self.pop[0][2])
 
     def evolve(self):
         it = 0
@@ -94,27 +86,10 @@ class GA:
             self.select()
 
             it += 1
-            self.record_params()
 
     def plot(self, title):
         w = self.pop[0][0:2]
         b = self.pop[0][2]
-
-        k = [-self.w[i][0] / self.w[i][1] for i in range(len(self.w))]
-        bias = [-self.b[i] / self.w[i][1] for i in range(len(self.b))]
-
-        # plot history of params
-        x = np.linspace(0, 1000, 1000)
-        plt.xlabel('Generations')
-        plt.ylabel('Slope')
-        plt.plot(x, k, color='tab:blue')
-        plt.show()
-
-        plt.xlabel('Generations')
-        plt.ylabel('Bias')
-        plt.plot(x, bias, color='tab:orange')
-        plt.show()
-
         for i in range(len(self.data)):
             if self.labels[i] == 1:
                 plt.scatter(self.data[i][0], self.data[i][1], color='green')
