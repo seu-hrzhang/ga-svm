@@ -217,8 +217,17 @@ class SMO:
                 else:
                     plt.scatter(self.data[i][0], self.data[i][1], color='green')
 
-        # plot hyperplane
         self.get_w()
+
+        # print params
+        print('w: ', self.w)
+        print('b: ', self.b)
+        k = -self.w[0] / self.w[1]
+        bias = -self.b / self.w[1]
+        print('k: ', k)
+        print('bias: ', bias)
+
+        # plot hyperplane
         x = np.linspace(-1, 10, 100)
         y = (-self.b - self.w[0] * x) / self.w[1]
         plt.plot(x, y)
