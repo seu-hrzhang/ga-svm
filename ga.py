@@ -103,7 +103,7 @@ class GA:
         k = [-self.w[i][0] / self.w[i][1] for i in range(len(self.w))]
         bias = [-self.b[i] / self.w[i][1] for i in range(len(self.b))]
 
-        # plot history of params
+        # plot param history
         x = np.linspace(0, 1000, 1000)
         plt.xlabel('Generations')
         plt.ylabel('Slope')
