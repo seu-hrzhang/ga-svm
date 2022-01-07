@@ -222,6 +222,7 @@ class SMO:
         # print params
         print('w: ', self.w)
         print('b: ', self.b)
+
         k = -self.w[0] / self.w[1]
         bias = -self.b / self.w[1]
         print('k: ', k)
